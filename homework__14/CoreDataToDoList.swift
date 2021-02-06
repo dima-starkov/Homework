@@ -110,16 +110,17 @@ extension CoreDataToDoList: UITableViewDataSource,UITableViewDelegate {
             
             do{
                 try context.save()
+                self.toDoArray.remove(at: indexPath.row)
+                self.table.reloadData()
                 
             } catch let error as NSError {
                 print(error.localizedDescription)
             }
             
-            self.table.reloadData()
            
         }
             let swipeActions = UISwipeActionsConfiguration(actions: [contextItem])
-
+        
             return swipeActions
     }
     
