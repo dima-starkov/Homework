@@ -6,11 +6,9 @@
 //
 
 import UIKit
-import RealmSwift
+
 
 class RealmToDoList: UIViewController {
-    let realm = try! Realm()
-    var toDoArray: Results<TaskList>!
   
     @IBOutlet weak var table: UITableView!
     
@@ -18,7 +16,7 @@ class RealmToDoList: UIViewController {
         super.viewDidLoad()
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Добавить", style: .plain, target: self, action: #selector(addItem))
-        toDoArray = realm.objects(TaskList.self)
+        
     }
     
     @objc func addItem(){
@@ -35,14 +33,9 @@ class RealmToDoList: UIViewController {
         let save = UIAlertAction(title: "Сохранить", style: .default) { action in
             guard let text = alertTF.text , !text.isEmpty else {return}
            
-            let task = TaskList()
-            task.task = text
+            Rlm.rlm.save(task: text, isDone: false)
             
-            try! self.realm.write {
-                self.realm.add(task)
-            }
-            
-            self.table.insertRows(at: [IndexPath.init(row: self.toDoArray.count - 1, section: 0)], with: .automatic)
+            self.table.insertRows(at: [IndexPath.init(row: Rlm.rlm.data.count - 1, section: 0)], with: .automatic)
         }
         
         let cancel = UIAlertAction(title: "Отмена", style: .destructive, handler: nil)
@@ -60,27 +53,24 @@ extension RealmToDoList: UITableViewDataSource,UITableViewDelegate {
     
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if toDoArray.count != 0 { return toDoArray.count } else
+        if Rlm.rlm.data.count != 0 { return Rlm.rlm.data?.count } else
         { return 0 }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = table.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        let item = toDoArray[indexPath.row]
+        let item = Rlm.rlm.data[indexPath.row]
         cell.textLabel?.text = item.task
+        if item.isDone{table.cellForRow(at: indexPath)?.accessoryType = .checkmark}
         return cell
         
     }
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let contextItem = UIContextualAction(style: .destructive, title:"Delete") {  (contextualAction, view, boolValue) in
-            let edit = self.toDoArray[indexPath.row]
-            
-            try! self.realm.write {
-                self.realm.delete(edit)
-                self.table.reloadData()
-            }
+            let edit = Rlm.rlm.data[indexPath.row]
+            Rlm.rlm.delete(obj: edit)
             
             }
             let swipeActions = UISwipeActionsConfiguration(actions: [contextItem])
@@ -88,6 +78,19 @@ extension RealmToDoList: UITableViewDataSource,UITableViewDelegate {
             return swipeActions
     }
     
-}
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let task = Rlm.rlm.data[indexPath.row]
+        
+        if task.isDone{
+            table.cellForRow(at: indexPath)?.accessoryType = .none
+            task.isDone = false
+        } else {
+            table.cellForRow(at: indexPath)?.accessoryType = .checkmark
+            task.isDone = true
+            }
+        }
+    
+    }
 
 

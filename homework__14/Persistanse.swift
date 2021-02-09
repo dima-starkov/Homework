@@ -28,7 +28,35 @@ class Persistance {
 
 class TaskList: Object {
     @objc dynamic var task = ""
+    @objc dynamic var isDone = false
 }
+
+class Rlm {
+    static let rlm = Rlm()
+    let realm = try! Realm()
+    var data: Results<TaskList>!
+    data = realm.objects(TaskList.self)
+    
+    func save(task:String, isDone: Bool) {
+        
+        let obj = TaskList()
+        obj.task = task
+        obj.isDone = isDone
+        realm.beginWrite()
+        realm.add(obj)
+        try! realm.commitWrite()
+    }
+    
+    func delete(obj: TaskList) {
+        let realm = try! Realm()
+        data = realm.objects(TaskList.self)
+        realm.beginWrite()
+        realm.delete(obj)
+        try! realm.commitWrite()
+    }
+    
+}
+
 
 class PersistanceWeather {
     static let shared = PersistanceWeather()
