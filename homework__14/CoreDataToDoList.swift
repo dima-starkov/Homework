@@ -6,11 +6,11 @@
 //
 
 import UIKit
-import CoreData
+
 
 class CoreDataToDoList: UIViewController {
     
-    var toDoArray:[ToDoList] = []
+    
     
     @IBOutlet weak var table: UITableView!
     
@@ -23,17 +23,7 @@ class CoreDataToDoList: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let context = appDelegate.persistentContainer.viewContext
-        
-        let fetchRequest: NSFetchRequest<ToDoList> = ToDoList.fetchRequest()
-        do {
-            toDoArray = try context.fetch(fetchRequest)
-        } catch let error as NSError{
-            print(error.localizedDescription)
-        }
-        
+    
         
     }
     
@@ -63,24 +53,7 @@ class CoreDataToDoList: UIViewController {
         
     }
     
-    func saveTask(title:String){
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let context = appDelegate.persistentContainer.viewContext
-        
-        guard let entity = NSEntityDescription.entity(forEntityName: "ToDoList", in: context) else {return}
-        let taskObject = ToDoList(entity: entity, insertInto: context)
-        taskObject.task = title
-        
-        do{
-            try context.save()
-            toDoArray.append(taskObject)
-            
-        } catch let error as NSError {
-            print(error.localizedDescription)
-        }
-        
-        
-    }
+   
     
 }
 
@@ -104,20 +77,9 @@ extension CoreDataToDoList: UITableViewDataSource,UITableViewDelegate {
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let contextItem = UIContextualAction(style: .destructive, title:"Delete") {  (contextualAction, view, boolValue) in
             let edit = self.toDoArray[indexPath.row]
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let context = appDelegate.persistentContainer.viewContext
-            context.delete(edit)
             
-            do{
-                try context.save()
-                self.toDoArray.remove(at: indexPath.row)
-                self.table.reloadData()
-                
-            } catch let error as NSError {
-                print(error.localizedDescription)
-            }
-            
-           
+            self.toDoArray.remove(at: indexPath.row)
+            self.table.reloadData()
         }
             let swipeActions = UISwipeActionsConfiguration(actions: [contextItem])
         

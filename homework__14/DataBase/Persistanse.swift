@@ -34,9 +34,13 @@ class TaskList: Object {
 class Rlm {
     static let rlm = Rlm()
     let realm = try! Realm()
-    var data: Results<TaskList>!
-    data = realm.objects(TaskList.self)
     
+    var data: Results<TaskList> {
+    let realm = try! Realm()
+    return realm.objects(TaskList.self)
+    }
+       
+        
     func save(task:String, isDone: Bool) {
         
         let obj = TaskList()
@@ -48,11 +52,16 @@ class Rlm {
     }
     
     func delete(obj: TaskList) {
-        let realm = try! Realm()
-        data = realm.objects(TaskList.self)
         realm.beginWrite()
         realm.delete(obj)
         try! realm.commitWrite()
+    }
+    
+    func edit(task: TaskList,isDone: Bool){
+        realm.beginWrite()
+        task.isDone = isDone
+       try! realm.commitWrite()
+    
     }
     
 }

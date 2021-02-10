@@ -53,7 +53,7 @@ extension RealmToDoList: UITableViewDataSource,UITableViewDelegate {
     
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if Rlm.rlm.data.count != 0 { return Rlm.rlm.data?.count } else
+        if Rlm.rlm.data.count != 0 { return Rlm.rlm.data.count } else
         { return 0 }
     }
     
@@ -62,7 +62,7 @@ extension RealmToDoList: UITableViewDataSource,UITableViewDelegate {
         let cell = table.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
         let item = Rlm.rlm.data[indexPath.row]
         cell.textLabel?.text = item.task
-        if item.isDone{table.cellForRow(at: indexPath)?.accessoryType = .checkmark}
+        if item.isDone{cell.accessoryType = .checkmark}
         return cell
         
     }
@@ -71,7 +71,7 @@ extension RealmToDoList: UITableViewDataSource,UITableViewDelegate {
         let contextItem = UIContextualAction(style: .destructive, title:"Delete") {  (contextualAction, view, boolValue) in
             let edit = Rlm.rlm.data[indexPath.row]
             Rlm.rlm.delete(obj: edit)
-            
+            self.table.reloadData()
             }
             let swipeActions = UISwipeActionsConfiguration(actions: [contextItem])
 
@@ -84,10 +84,10 @@ extension RealmToDoList: UITableViewDataSource,UITableViewDelegate {
         
         if task.isDone{
             table.cellForRow(at: indexPath)?.accessoryType = .none
-            task.isDone = false
+            Rlm.rlm.edit(task: task, isDone: false)
         } else {
             table.cellForRow(at: indexPath)?.accessoryType = .checkmark
-            task.isDone = true
+            Rlm.rlm.edit(task: task, isDone: true)
             }
         }
     
